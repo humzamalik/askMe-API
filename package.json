@@ -1,0 +1,27 @@
+{
+  "name": "askme-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/humzamalik/askMe-API.git"
+  },
+  "author": "Humza Malik",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/humzamalik/askMe-API/issues"
+  },
+  "homepage": "https://github.com/humzamalik/askMe-API#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "morgan": "^1.10.0",
+    "nodemon": "^2.0.6"
+  }
+}
