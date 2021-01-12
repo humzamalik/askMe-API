@@ -10,7 +10,17 @@ router.get("/", (req, res, next) => {
     Question.find()
         .exec()
         .then(results => {
-            res.status(200).json(results)
+            res.status(200).json(results.map(result => {
+                return {
+                    _id: result._id,
+                    query: result.query,
+                    askedBy: result.askedBy,
+                    dateCreated: result.dateCreated,
+                    dateUpdated: result.dateUpdated,
+                    likes: result.likes,
+                    answers: result.answers
+                }
+            }))
         })
         .catch(err => {
             res.status(500).json({
@@ -20,17 +30,31 @@ router.get("/", (req, res, next) => {
 })
 
 router.post("/", (req, res, next) => {
+    if (req.body.query === undefined || req.body.askedBy === undefined) {
+        res.status(400).json({
+            Message: "Request payload is invalid. Please use attached format to post a question",
+            format: {
+                "query": "A String query",
+                "askedBy": "A valid username"
+            }
+        })
+        return
+    }
     const question = new Question({
         _id: new mongoose.Types.ObjectId(),
         query: req.body.query,
-        askedBy: req.body.askedBy
+        askedBy: req.body.askedBy,
+        dateCreated: Date.now(),
+        dateUpdated: null,
+        likes: 0,
+        answers: 0,
     })
     question
         .save()
         .then(result => {
             res.status(200).json({
-                message: "It will use to post a question",
-                postedQuestion: question
+                message: "Question posted",
+                questionId: question._id
             })
         })
         .catch(err => {
@@ -61,8 +85,20 @@ router.get("/:id", (req, res, next) => {
 })
 
 router.patch("/:id", (req, res, next) => {
+    if (req.body.query === undefined || req.body._id === undefined) {
+        res.status(400).json({
+            Message: "Request payload is invalid. Please use attached format to post a question",
+            format: {
+                "query": "A String query",
+                "_id": "A valid question id that exists"
+            }
+        })
+        return
+    }
     const id = req.params.id
-    Question.updateOne({ _id: id }, { $set: { 'query': req.body.query } })
+    Question.updateOne({ _id: id }, {
+            $set: { 'query': req.body.query }
+        })
         .exec()
         .then(result => {
             res.status(200).json(result)
