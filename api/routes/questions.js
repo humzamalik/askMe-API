@@ -8,19 +8,10 @@ const router = express.Router()
 
 router.get("/", (req, res, next) => {
     Question.find()
+        .select("_id query askedBy dateCreated dateUpdated likes answers")
         .exec()
         .then(results => {
-            res.status(200).json(results.map(result => {
-                return {
-                    _id: result._id,
-                    query: result.query,
-                    askedBy: result.askedBy,
-                    dateCreated: result.dateCreated,
-                    dateUpdated: result.dateUpdated,
-                    likes: result.likes,
-                    answers: result.answers
-                }
-            }))
+            res.status(200).json(results)
         })
         .catch(err => {
             res.status(500).json({
@@ -52,7 +43,7 @@ router.post("/", (req, res, next) => {
     question
         .save()
         .then(result => {
-            res.status(200).json({
+            res.status(201).json({
                 message: "Question posted",
                 questionId: question._id
             })
@@ -67,6 +58,7 @@ router.post("/", (req, res, next) => {
 router.get("/:id", (req, res, next) => {
     const id = req.params.id
     Question.findById(id)
+        .select("_id query askedBy dateCreated dateUpdated likes answers")  
         .exec()
         .then(result => {
             if (result) {
@@ -85,23 +77,27 @@ router.get("/:id", (req, res, next) => {
 })
 
 router.patch("/:id", (req, res, next) => {
-    if (req.body.query === undefined || req.body._id === undefined) {
+    if (req.body.query === undefined) {
         res.status(400).json({
             Message: "Request payload is invalid. Please use attached format to post a question",
             format: {
-                "query": "A String query",
-                "_id": "A valid question id that exists"
+                "query": "A String query that you want to update"
             }
         })
         return
     }
     const id = req.params.id
     Question.updateOne({ _id: id }, {
-            $set: { 'query': req.body.query }
+            $set: {
+                'query': req.body.query,
+                dateUpdated: Date.now()
+            }
         })
         .exec()
         .then(result => {
-            res.status(200).json(result)
+            res.status(201).json({
+                message: "Updated"
+            })
         })
         .catch(err => {
             res.status(500).json({

@@ -2,8 +2,8 @@ const mongoose = require("mongoose")
 
 const questionSchema = mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
-    query: String,
-    askedBy: String,
+    query: String, // {type: String, require: true},
+    askedBy: String, // {type: String, require: true},
     dateCreated: Date,
     dateUpdated: Date,
     likes: Number,

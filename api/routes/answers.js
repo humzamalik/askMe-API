@@ -1,5 +1,8 @@
 const express = require("express")
+const mongoose = require("mongoose")
 const router = express.Router()
+
+const Answer = require("../models/answer")
 
 router.get("/", (req, res, next) => {
     res.status(200).json({
@@ -8,8 +11,32 @@ router.get("/", (req, res, next) => {
 })
 
 router.post("/", (req, res, next) => {
-    res.status(200).json({
-        message: "It will use to post a answer"
+    const args = {
+        questionId: req.body.questionId,
+        text: req.body.text,
+        answeredBy: req.body.answeredBy
+    }
+    if (Object.values(args).includes(undefined)){
+        res.status(400).json({
+            Message: "Request payload is invalid. Please use attached format to post an answer",
+            format: {
+                "text": "An answer String",
+                "answeredBy": "A valid username",
+                "questionId": "A valid question id"
+            }
+        })
+        return
+    }
+    const answer = new Answer({
+        _id: new mongoose.Types.ObjectId(),
+        questionId : req.body.questionId,
+        text: req.body.text, // {type: String, require: true},
+        answeredBy: req.body.answeredBy, // {type: String, require: true},
+        dateCreated: Date.now(),
+        dateUpdated: null,
+        upVotes: 0,
+        downVotes: 0,
+        isVerified: false
     })
 })
 
