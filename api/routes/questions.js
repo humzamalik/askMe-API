@@ -3,6 +3,7 @@ const mongoose = require("mongoose")
 const question = require("../models/question")
 
 const Question = require("../models/question")
+const Answer = require("../models/answer")
 
 const router = express.Router()
 
@@ -58,7 +59,7 @@ router.post("/", (req, res, next) => {
 router.get("/:id", (req, res, next) => {
     const id = req.params.id
     Question.findById(id)
-        .select("_id query askedBy dateCreated dateUpdated likes answers")  
+        .select("_id query askedBy dateCreated dateUpdated likes answers")
         .exec()
         .then(result => {
             if (result) {
@@ -108,10 +109,17 @@ router.patch("/:id", (req, res, next) => {
 
 router.delete("/:id", (req, res, next) => {
     const id = req.params.id
-    Question.remove({ _id: id })
+    Question.deleteOne({ _id: id })
         .exec()
-        .then(result => {
-            res.status(200).json(result)
+        .then(delQuestion => {
+            Answer.deleteMany({ questionId: id })
+                .exec()
+                .then(delAnswer => {
+                    // dump
+                })
+            res.status(200).json({
+                "Result": delQuestion
+            })
         })
         .catch(err => {
             res.status(500).json({

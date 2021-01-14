@@ -82,8 +82,8 @@ router.post("/", (req, res, next) => {
 
                     })
                     Question.updateOne({ _id: args.questionId }, {
-                            $set: {
-                                answers: question.answers + 1
+                            $inc: {
+                                answers: 1
                             }
                         })
                         .exec()
@@ -135,7 +135,7 @@ router.delete("/:id", (req, res, next) => {
                         if (answer) {
                             Question.updateOne({ _id: answer.questionId }, {
                                     $inc: {
-                                        "answers": -1
+                                        answers: -1
                                     }
                                 })
                                 .exec()

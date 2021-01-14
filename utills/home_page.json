@@ -1,0 +1,31 @@
+{
+    "routes": [{
+        "name": "Questions",
+        "url": "localhost:3000/questions",
+        "requests": [{
+                "Method": "POST",
+                "params": [],
+                "query": [],
+                "body": null
+            },
+            {
+                "Method": "GET",
+                "params": [],
+                "query": [],
+                "body": null
+            },
+            {
+                "Method": "PATCH",
+                "params": [],
+                "query": [],
+                "body": null
+            },
+            {
+                "Method": "DELETE",
+                "params": [],
+                "query": [],
+                "body": null
+            }
+        ]
+    }]
+}
