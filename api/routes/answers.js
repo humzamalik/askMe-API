@@ -3,13 +3,40 @@ const mongoose = require("mongoose")
 const router = express.Router()
 
 const Answer = require("../models/answer")
+const question = require("../models/question")
 const Question = require("../models/question")
 
-// router.get("/", (req, res, next) => {
-//     res.status(200).json({
-//         message: "It will return all answers"
-//     })
-// })
+router.get("/", (req, res, next) => {
+    if (req.query.questionId) {
+        Question.findById(req.query.questionId)
+            .exec()
+            .then(question => {
+                if (!question) {
+                    return res.status(404).json({
+                        "message": "No question found against passed Id"
+                    })
+                }
+                Answer.find({ questionId: req.query.questionId })
+                    .exec()
+                    .then(answers => {
+                        res.status(200).json({
+                            question: question,
+                            answers: answers
+                        })
+                    })
+            })
+            .catch(err => {
+                res.status(500).json({
+                    Error: err
+                })
+            })
+    } else {
+        res.status(400).json({
+            message: "Request format is invalid",
+            format: "/answers?questionId=<a valid question id>"
+        })
+    }
+})
 
 router.post("/", (req, res, next) => {
     const args = {
@@ -70,10 +97,23 @@ router.post("/", (req, res, next) => {
 })
 
 router.get("/:id", (req, res, next) => {
-    res.status(200).json({
-        message: "It will return a answer",
-        id: req.params.id
-    })
+    const id = req.params.id
+    Answer.findById(id)
+        .exec()
+        .then(result => {
+            if (result) {
+                res.status(200).json(result)
+            } else {
+                res.status(404).json({
+                    message: 'No answer found against passed id'
+                })
+            }
+        })
+        .catch(err => {
+            res.status(500).json({
+                Error: err
+            })
+        })
 })
 
 router.patch("/:id", (req, res, next) => {
@@ -84,10 +124,31 @@ router.patch("/:id", (req, res, next) => {
 })
 
 router.delete("/:id", (req, res, next) => {
-    res.status(200).json({
-        message: "It will delete a answer",
-        id: req.params.id
-    })
+    const id = req.params.id
+    Answer.deleteOne({ _id: id })
+        .exec()
+        .then(result => {
+            if (result['n'] > 0) {
+                Answer.findById(id)
+                    .exec()
+                    .then(answer => {
+                        if (answer) {
+                            Question.updateOne({ _id: answer.questionId }, {
+                                    $inc: {
+                                        "answers": -1
+                                    }
+                                })
+                                .exec()
+                        }
+                    })
+            }
+            res.status(200).json(result)
+        })
+        .catch(err => {
+            res.status(500).json({
+                Error: err
+            })
+        })
 })
 
 module.exports = router
