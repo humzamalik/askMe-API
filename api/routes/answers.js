@@ -117,10 +117,33 @@ router.get("/:id", (req, res, next) => {
 })
 
 router.patch("/:id", (req, res, next) => {
-    res.status(200).json({
-        message: "It will use to update a answer",
-        id: req.params.id
-    })
+    if (req.body.text === undefined) {
+        res.status(400).json({
+            Message: "Request payload is invalid. Please use attached format to update answer body",
+            format: {
+                "text": "A String that you want to update"
+            }
+        })
+        return
+    }
+    const id = req.params.id
+    Answer.updateOne({ _id: id }, {
+            $set: {
+                'text': req.body.text,
+                dateUpdated: Date.now()
+            }
+        })
+        .exec()
+        .then(result => {
+            res.status(201).json({
+                message: "Updated"
+            })
+        })
+        .catch(err => {
+            res.status(500).json({
+                Error: err
+            })
+        })
 })
 
 router.delete("/:id", (req, res, next) => {
