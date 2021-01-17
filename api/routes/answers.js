@@ -78,7 +78,8 @@ router.post("/", (req, res, next) => {
                 .then(result => {
                     res.status(201).json({
                         "message": "Answer posted against question id",
-                        "questionId": answer.questionId
+                        "questionId": answer.questionId,
+                        "answerId": answer._id
 
                     })
                     Question.updateOne({ _id: args.questionId }, {
@@ -99,6 +100,7 @@ router.post("/", (req, res, next) => {
 router.get("/:id", (req, res, next) => {
     const id = req.params.id
     Answer.findById(id)
+        .populate("questionId")
         .exec()
         .then(result => {
             if (result) {
