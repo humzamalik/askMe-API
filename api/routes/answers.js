@@ -158,6 +158,7 @@ router.delete("/:id", (req, res, next) => {
                     .exec()
                     .then(answer => {
                         if (answer) {
+                            console.log(answer.questionId)
                             Question.updateOne({ _id: answer.questionId }, {
                                     $inc: {
                                         answers: -1

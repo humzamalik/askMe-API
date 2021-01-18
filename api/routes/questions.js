@@ -1,11 +1,22 @@
 const express = require("express")
 const mongoose = require("mongoose")
 const question = require("../models/question")
+const multer = require("multer")
 
 const Question = require("../models/question")
 const Answer = require("../models/answer")
 
 const router = express.Router()
+
+const storage = multer.diskStorage({
+    destination: "./media/",
+    filename: function(req, file, cb) {
+        cb(null, new Date().toISOString() + file.originalname)
+    }
+})
+const upload = multer({
+    storage: storage
+}).any('pictures')
 
 router.get("/", (req, res, next) => {
     Question.find()
