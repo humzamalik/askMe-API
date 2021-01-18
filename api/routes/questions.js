@@ -1,17 +1,17 @@
+const fs = require("fs")
+const multer = require("multer")
 const express = require("express")
 const mongoose = require("mongoose")
-const question = require("../models/question")
-const multer = require("multer")
 
-const Question = require("../models/question")
 const Answer = require("../models/answer")
+const Question = require("../models/question")
 
 const router = express.Router()
 
 const storage = multer.diskStorage({
     destination: "./media/",
     filename: function(req, file, cb) {
-        cb(null, file.originalname)
+        cb(null, Date.now().toString() + " " + file.originalname)
     }
 })
 
@@ -31,6 +31,15 @@ const upload = multer({
     },
     fileFilter: fileFilter
 }).array('pictures')
+
+const delFile = (path) => {
+    fs.unlink(path, (err) => {
+        if (err) {
+            console.error(err)
+            return
+        }
+    })
+}
 
 router.get("/", (req, res, next) => {
     Question.find() //.select("_id query askedBy dateCreated dateUpdated likes answers")
