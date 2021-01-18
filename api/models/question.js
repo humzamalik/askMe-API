@@ -6,6 +6,7 @@ const questionSchema = mongoose.Schema({
     askedBy: String, // {type: String, require: true},
     dateCreated: Date,
     dateUpdated: Date,
+    media: Array,
     likes: Number,
     answers: Number
 })

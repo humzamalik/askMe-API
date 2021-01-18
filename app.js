@@ -17,6 +17,8 @@ mongoose.connect(
 
 // app.use(morgan("dev"))
 
+app.use("/media", express.static("media"))
+
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 

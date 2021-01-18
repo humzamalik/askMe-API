@@ -11,16 +11,29 @@ const router = express.Router()
 const storage = multer.diskStorage({
     destination: "./media/",
     filename: function(req, file, cb) {
-        cb(null, new Date().toISOString() + file.originalname)
+        cb(null, file.originalname)
     }
 })
+
+const fileFilter = (req, file, cb) => {
+    const allowed = ['image/png', 'image/jpeg', 'image/jpg']
+    if (allowed.includes(file.mimetype)) {
+        cb(null, true)
+    } else {
+        cb(new Error(`${file.mimetype} is'nt supported by server`), false)
+    }
+}
+
 const upload = multer({
-    storage: storage
-}).any('pictures')
+    storage: storage,
+    limits: {
+        fileSize: 1024 * 1024
+    },
+    fileFilter: fileFilter
+}).array('pictures')
 
 router.get("/", (req, res, next) => {
-    Question.find()
-        .select("_id query askedBy dateCreated dateUpdated likes answers")
+    Question.find() //.select("_id query askedBy dateCreated dateUpdated likes answers")
         .exec()
         .then(results => {
             res.status(200).json(results)
@@ -32,7 +45,7 @@ router.get("/", (req, res, next) => {
         })
 })
 
-router.post("/", (req, res, next) => {
+router.post("/", upload, (req, res, next) => {
     if (req.body.query === undefined || req.body.askedBy === undefined) {
         res.status(400).json({
             Message: "Request payload is invalid. Please use attached format to post a question",
@@ -49,6 +62,9 @@ router.post("/", (req, res, next) => {
         askedBy: req.body.askedBy,
         dateCreated: Date.now(),
         dateUpdated: null,
+        media: req.files.map(file => {
+            return file.path
+        }),
         likes: 0,
         answers: 0,
     })
