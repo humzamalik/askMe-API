@@ -3,7 +3,6 @@ const mongoose = require("mongoose")
 const router = express.Router()
 
 const Answer = require("../models/answer")
-const question = require("../models/question")
 const Question = require("../models/question")
 
 router.get("/", (req, res, next) => {
@@ -150,25 +149,24 @@ router.patch("/:id", (req, res, next) => {
 
 router.delete("/:id", (req, res, next) => {
     const id = req.params.id
-    Answer.deleteOne({ _id: id })
+    Answer.findByIdAndDelete(id)
         .exec()
         .then(result => {
-            if (result['n'] > 0) {
-                Answer.findById(id)
-                    .exec()
-                    .then(answer => {
-                        if (answer) {
-                            console.log(answer.questionId)
-                            Question.updateOne({ _id: answer.questionId }, {
-                                    $inc: {
-                                        answers: -1
-                                    }
-                                })
-                                .exec()
+            if (result) {
+                Question.updateOne({ _id: result.questionId }, {
+                        $inc: {
+                            answers: -1
                         }
                     })
+                    .exec()
+                res.status(200).json({
+                    message: "Answer deleted"
+                })
+            } else {
+                res.status(404).json({
+                    message: "No Answer found"
+                })
             }
-            res.status(200).json(result)
         })
         .catch(err => {
             res.status(500).json({

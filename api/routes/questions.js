@@ -5,6 +5,7 @@ const mongoose = require("mongoose")
 
 const Answer = require("../models/answer")
 const Question = require("../models/question")
+const question = require("../models/question")
 
 const router = express.Router()
 
@@ -94,8 +95,7 @@ router.post("/", upload, (req, res, next) => {
 
 router.get("/:id", (req, res, next) => {
     const id = req.params.id
-    Question.findById(id)
-        .select("_id query askedBy dateCreated dateUpdated likes answers")
+    Question.findById(id) // .select("_id query askedBy dateCreated dateUpdated likes answers")
         .exec()
         .then(result => {
             if (result) {
@@ -145,17 +145,22 @@ router.patch("/:id", (req, res, next) => {
 
 router.delete("/:id", (req, res, next) => {
     const id = req.params.id
-    Question.deleteOne({ _id: id })
+    Question.findByIdAndDelete(id)
         .exec()
-        .then(delQuestion => {
-            Answer.deleteMany({ questionId: id })
-                .exec()
-                .then(delAnswer => {
-                    // dump
+        .then(question => {
+            if (question) {
+                const paths = question.media
+                paths.forEach(path => delFile);
+                Answer.deleteMany({ questionId: id })
+                    .exec()
+                res.status(200).json({
+                    message: "Question Deleted"
                 })
-            res.status(200).json({
-                "Result": delQuestion
-            })
+            } else {
+                res.status(404).json({
+                    Message: "Question Not Found"
+                })
+            }
         })
         .catch(err => {
             res.status(500).json({
