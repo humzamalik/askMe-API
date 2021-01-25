@@ -7,6 +7,7 @@ const app = express()
 
 const questionRoutes = require("./api/routes/questions")
 const answerRoutes = require("./api/routes/answers")
+const userRoutes = require("./api/routes/user")
 
 mongoose.connect(
     "mongodb+srv://askme:askme@cluster0.seskr.mongodb.net/main?retryWrites=true&w=majority", {
@@ -36,6 +37,7 @@ app.use((req, res, next) => {
 
 app.use("/questions", questionRoutes)
 app.use("/answers", answerRoutes)
+app.use("/user", userRoutes)
 
 app.use((req, res, next) => {
     const err = new Error("Not Found")
