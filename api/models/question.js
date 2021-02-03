@@ -1,14 +1,11 @@
 const mongoose = require("mongoose")
 
 const questionSchema = mongoose.Schema({
-    _id: mongoose.Schema.Types.ObjectId,
     query: String, // {type: String, require: true},
     askedBy: String, // {type: String, require: true},
-    dateCreated: Date,
-    dateUpdated: Date,
-    media: Array,
-    likes: Number,
-    answers: Number
-})
+    media: { type: Array, default: [] },
+    likes: { type: Number, default: 0 },
+    answers: { type: Number, default: 0 }
+}, { timestamps: true })
 
 module.exports = mongoose.model("Question", questionSchema)
