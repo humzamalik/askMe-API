@@ -3,6 +3,7 @@ const morgan = require("morgan")
 const express = require("express")
 const mongoose = require("mongoose")
 const bodyParser = require('body-parser')
+const routes = require('./api/routes/index')
 
 const app = express()
 
@@ -26,9 +27,7 @@ app.use(bodyParser.json())
 
 app.use(cors())
 
-app.use("/questions", questionRoutes)
-app.use("/answers", answerRoutes)
-app.use("/users", userRoutes)
+app.use("/", routes)
 
 app.use((req, res, next) => {
     const err = new Error("Not Found")

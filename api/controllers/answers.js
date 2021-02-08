@@ -39,18 +39,17 @@ exports.post = (req, res, next) => {
     const args = [
         req.body.questionId,
         req.body.text,
-        req.body.answeredBy
     ]
     if (args.includes(undefined)) {
         return res.status(400).json({
             message: "Request payload is invalid. Please use attached format to post an answer",
             format: {
                 "text": "An answer String",
-                "answeredBy": "A valid username",
                 "questionId": "A valid question id"
             }
         })
     }
+    const userData = req.userData
     Question.findById(req.body.questionId)
         .exec()
         .then(question => {
@@ -62,7 +61,7 @@ exports.post = (req, res, next) => {
             Answer.create({
                     questionId: req.body.questionId,
                     text: req.body.text, // {type: String, require: true},
-                    answeredBy: req.body.answeredBy // {type: String, require: true},
+                    answeredBy: userData.username // {type: String, require: true},
                 },
                 (error, answer) => {
                     if (error) {
@@ -122,16 +121,23 @@ exports.patch = (req, res, next) => {
         })
     }
     const id = req.params.id
-    Answer.updateOne({ _id: id }, {
+    const userData = req.userData
+    Answer.updateOne({ _id: id, answeredBy: userData.username }, {
             $set: {
                 'text': req.body.text
             }
         })
         .exec()
         .then(result => {
-            res.status(201).json({
-                message: "Updated"
-            })
+            if (result.n > 0) {
+                res.status(201).json({
+                    message: "Updated"
+                })
+            } else {
+                res.status(203).json({
+                    message: "Not updated"
+                })
+            }
         })
         .catch(err => {
             res.status(500).json({
@@ -143,7 +149,8 @@ exports.patch = (req, res, next) => {
 
 exports.delete = (req, res, next) => {
     const id = req.params.id
-    Answer.findByIdAndDelete(id)
+    const userData = req.userData
+    Answer.findOneAndDelete({ _id: id, answeredBy: userData.username })
         .exec()
         .then(result => {
             if (result) {
@@ -158,7 +165,7 @@ exports.delete = (req, res, next) => {
                 })
             } else {
                 res.status(404).json({
-                    message: "No Answer found"
+                    message: "Answer not found"
                 })
             }
         })

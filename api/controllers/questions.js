@@ -1,3 +1,4 @@
+const User = require("../models/user")
 const Answer = require("../models/answer")
 const Question = require("../models/question")
 const delFile = require("../helpers/delete_media")
@@ -21,22 +22,15 @@ exports.get_all = (req, res, next) => {
 
 
 exports.post = (req, res, next) => {
-    const args = [
-        req.body.query,
-        req.body.askedBy
-    ]
-    if (args.includes(undefined)) {
+    const userData = req.userData
+    if (!req.body.query) {
         return res.status(400).json({
-            message: "Request payload is invalid. Please use attached format to post a question",
-            format: {
-                "query": "A String query",
-                "askedBy": "A valid username"
-            }
+            message: "query parameter required",
         })
     }
     Question.create({
             query: req.body.query,
-            askedBy: req.body.askedBy,
+            askedBy: userData.username,
             media: req.files ? req.files.map(file => {
                 return file.path
             }) : [],
@@ -77,25 +71,29 @@ exports.get_one = (req, res, next) => {
 
 
 exports.patch = (req, res, next) => {
-    if (req.body.query === undefined) {
+    if (!req.body.query) {
         return res.status(400).json({
-            message: "Request payload is invalid. Please use attached format to post a question",
-            format: {
-                "query": "A String query that you want to update"
-            }
+            message: "query parameter required",
         })
     }
     const id = req.params.id
-    Question.updateOne({ _id: id }, {
+    const userData = req.userData
+    Question.updateOne({ _id: id, askedBy: userData.username }, {
             $set: {
                 'query': req.body.query
             }
         })
         .exec()
         .then(result => {
-            res.status(201).json({
-                message: "Updated"
-            })
+            if (result.n > 0) {
+                res.status(201).json({
+                    message: "Updated"
+                })
+            } else {
+                res.status(203).json({
+                    message: "Not updated"
+                })
+            }
         })
         .catch(err => {
             res.status(500).json({
@@ -107,7 +105,8 @@ exports.patch = (req, res, next) => {
 
 exports.delete = (req, res, next) => {
     const id = req.params.id
-    Question.findByIdAndDelete(id)
+    const userData = req.userData
+    Question.findOneAndDelete({ _id: id, askedBy: userData.username })
         .exec()
         .then(question => {
             if (question) {

@@ -19,7 +19,6 @@ exports.signup = (req, res, next) => {
     User.findOne({ username: req.body.username })
         .exec()
         .then(result => {
-            console.log(result)
             if (result) {
                 return res.status(409).json({
                     message: "Username taken. please try another one"
