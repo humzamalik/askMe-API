@@ -1,13 +1,10 @@
 const bcrypt = require("bcrypt")
 const User = require("../models/user")
-const gen_token = require("../helpers/generate_token")
+const generateToken = require("../helpers/generate_token")
 
 exports.signup = (req, res, next) => {
-    const args = [
-        req.body.username,
-        req.body.password,
-    ]
-    if (args.includes(undefined)) {
+    const { username, password } = req.body
+    if (!username || !password) {
         return res.status(400).json({
             message: "Request payload is invalid. Please use attached format to create a new account",
             format: {
@@ -16,7 +13,7 @@ exports.signup = (req, res, next) => {
             }
         })
     }
-    User.findOne({ username: req.body.username })
+    User.findOne({ username })
         .exec()
         .then(result => {
             if (result) {
@@ -24,20 +21,20 @@ exports.signup = (req, res, next) => {
                     message: "Username taken. please try another one"
                 })
             } else {
-                bcrypt.hash(req.body.password, 10, (err, hash) => {
+                bcrypt.hash(password, 10, (err, hash) => {
                     if (err) {
                         return res.status(500).json({
                             error: err
                         })
                     } else {
                         User.create({
-                                username: req.body.username,
+                                username,
                                 password: hash,
                             },
                             (error, user) => {
                                 if (error) {
                                     return res.status(500).json({
-                                        error: err
+                                        error
                                     })
                                 }
                                 res.status(201).json({
@@ -57,11 +54,12 @@ exports.signup = (req, res, next) => {
 }
 
 exports.login = (req, res, next) => {
-    User.findOne({ username: req.body.username })
+    const { username, password } = req.body
+    User.findOne({ username })
         .exec()
         .then(user => {
             if (user) {
-                bcrypt.compare(req.body.password, user.password, (err, result) => {
+                bcrypt.compare(password, user.password, (err, result) => {
                     if (err) {
                         return res.status(401).json({
                             message: 'Auth Failed'
@@ -70,7 +68,7 @@ exports.login = (req, res, next) => {
                     if (result) {
                         return res.status(200).json({
                             message: 'Auth Successful',
-                            token: gen_token(user.username)
+                            token: generateToken(username)
                         })
                     }
                     return res.status(401).json({
@@ -91,7 +89,7 @@ exports.login = (req, res, next) => {
 }
 
 
-exports.get_all_user = (req, res, next) => {
+exports.getAll = (req, res, next) => {
     User.find()
         .exec()
         .then(results => {
@@ -107,13 +105,13 @@ exports.get_all_user = (req, res, next) => {
         })
 }
 
-exports.del_all_user = (req, res, next) => {
+exports.delAll = (req, res, next) => {
     User.deleteMany()
         .exec()
         .then(results => {
             res.status(200).json({
                 count: results.length,
-                results: results
+                results
             })
         })
         .catch(err => {

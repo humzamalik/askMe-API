@@ -2,14 +2,10 @@ const cors = require('cors')
 const morgan = require("morgan")
 const express = require("express")
 const mongoose = require("mongoose")
+const routes = require('./api/routes')
 const bodyParser = require('body-parser')
-const routes = require('./api/routes/index')
 
 const app = express()
-
-const questionRoutes = require("./api/routes/questions")
-const answerRoutes = require("./api/routes/answers")
-const userRoutes = require("./api/routes/user")
 
 mongoose.connect(
     "mongodb+srv://askme:askme@cluster0.seskr.mongodb.net/main?retryWrites=true&w=majority", {
@@ -27,7 +23,7 @@ app.use(bodyParser.json())
 
 app.use(cors())
 
-app.use("/", routes)
+app.use("/api", routes)
 
 app.use((req, res, next) => {
     const err = new Error("Not Found")

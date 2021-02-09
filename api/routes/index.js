@@ -2,12 +2,12 @@ const express = require("express")
 
 const routes = express.Router()
 
-const questionRoutes = require("./questions")
-const answerRoutes = require("./answers")
 const userRoutes = require("./user")
+const answerRoutes = require("./answers")
+const questionRoutes = require("./questions")
 
-routes.use("/questions", questionRoutes)
-routes.use("/answers", answerRoutes)
 routes.use("/users", userRoutes)
+routes.use("/answers", answerRoutes)
+routes.use("/questions", questionRoutes)
 
 module.exports = routes

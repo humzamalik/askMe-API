@@ -1,8 +1,8 @@
 const mongoose = require("mongoose")
 
 const questionSchema = mongoose.Schema({
-    query: String, // {type: String, require: true},
-    askedBy: String, // {type: String, require: true},
+    query: String,
+    askedBy: { type: String, ref: 'User' },
     media: { type: Array, default: [] },
     likes: { type: Number, default: 0 },
     answers: { type: Number, default: 0 }

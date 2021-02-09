@@ -1,13 +1,13 @@
 const express = require("express")
 const checkAuth = require("../middlewares/check_auth")
-const answer_controller = require("../controllers/answers")
+const answerController = require("../controllers/answers")
 
 const router = express.Router()
 
-router.get("/", answer_controller.get_all)
-router.post("/", checkAuth, answer_controller.post)
-router.get("/:id", answer_controller.get_one)
-router.patch("/:id", checkAuth, answer_controller.patch)
-router.delete("/:id", checkAuth, answer_controller.delete)
+router.get("/", answerController.getAll)
+router.get("/:id", answerController.getOne)
+router.post("/", checkAuth, answerController.post)
+router.patch("/:id", checkAuth, answerController.patch)
+router.delete("/:id", checkAuth, answerController.delete)
 
 module.exports = router

@@ -4,13 +4,13 @@ const Question = require("../models/question")
 const delFile = require("../helpers/delete_media")
 
 
-exports.get_all = (req, res, next) => {
-    Question.find() //.select("_id query askedBy dateCreated dateUpdated likes answers")
+exports.getAll = (req, res, next) => {
+    Question.find()
         .exec()
-        .then(results => {
+        .then(questions => {
             res.status(200).json({
-                count: results.length,
-                questions: results
+                count: questions.length,
+                questions
             })
         })
         .catch(err => {
@@ -22,14 +22,15 @@ exports.get_all = (req, res, next) => {
 
 
 exports.post = (req, res, next) => {
-    const userData = req.userData
-    if (!req.body.query) {
+    const { userData } = req
+    const { query } = req.body
+    if (!query) {
         return res.status(400).json({
             message: "query parameter required",
         })
     }
     Question.create({
-            query: req.body.query,
+            query,
             askedBy: userData.username,
             media: req.files ? req.files.map(file => {
                 return file.path
@@ -38,7 +39,7 @@ exports.post = (req, res, next) => {
         (error, question) => {
             if (error) {
                 return res.status(500).json({
-                    error: err
+                    error
                 })
             }
             res.status(201).json({
@@ -49,9 +50,9 @@ exports.post = (req, res, next) => {
 }
 
 
-exports.get_one = (req, res, next) => {
-    const id = req.params.id
-    Question.findById(id) // .select("_id query askedBy dateCreated dateUpdated likes answers")
+exports.getOne = (req, res, next) => {
+    const { id } = req.params
+    Question.findById(id)
         .exec()
         .then(result => {
             if (result) {
@@ -71,16 +72,17 @@ exports.get_one = (req, res, next) => {
 
 
 exports.patch = (req, res, next) => {
-    if (!req.body.query) {
+    const { query } = req.body
+    if (!query) {
         return res.status(400).json({
             message: "query parameter required",
         })
     }
-    const id = req.params.id
-    const userData = req.userData
+    const { userData } = req
+    const { id } = req.params
     Question.updateOne({ _id: id, askedBy: userData.username }, {
             $set: {
-                'query': req.body.query
+                query
             }
         })
         .exec()
@@ -104,14 +106,14 @@ exports.patch = (req, res, next) => {
 
 
 exports.delete = (req, res, next) => {
-    const id = req.params.id
-    const userData = req.userData
+    const { userData } = req
+    const { id } = req.params
     Question.findOneAndDelete({ _id: id, askedBy: userData.username })
         .exec()
         .then(question => {
             if (question) {
                 const paths = question.media
-                paths.forEach(path => delFile);
+                paths.forEach(delFile);
                 Answer.deleteMany({ questionId: id })
                     .exec()
                 res.status(200).json({

@@ -2,9 +2,10 @@ const Answer = require("../models/answer")
 const Question = require("../models/question")
 
 
-exports.get_all = (req, res, next) => {
-    if (req.query.questionId) {
-        Question.findById(req.query.questionId)
+exports.getAll = (req, res, next) => {
+    const { questionId } = req.query
+    if (questionId) {
+        Question.findById(questionId)
             .exec()
             .then(question => {
                 if (!question) {
@@ -12,13 +13,13 @@ exports.get_all = (req, res, next) => {
                         "message": "No question found against passed Id"
                     })
                 }
-                Answer.find({ questionId: req.query.questionId })
+                Answer.find({ questionId })
                     .exec()
                     .then(answers => {
                         res.status(200).json({
-                            question: question,
+                            question,
                             count: answers.length,
-                            answers: answers
+                            answers
                         })
                     })
             })
@@ -36,11 +37,8 @@ exports.get_all = (req, res, next) => {
 }
 
 exports.post = (req, res, next) => {
-    const args = [
-        req.body.questionId,
-        req.body.text,
-    ]
-    if (args.includes(undefined)) {
+    const { questionId, text } = req.body
+    if (!questionId || !text) {
         return res.status(400).json({
             message: "Request payload is invalid. Please use attached format to post an answer",
             format: {
@@ -49,8 +47,8 @@ exports.post = (req, res, next) => {
             }
         })
     }
-    const userData = req.userData
-    Question.findById(req.body.questionId)
+    const { userData } = req
+    Question.findById(questionId)
         .exec()
         .then(question => {
             if (!question) {
@@ -59,18 +57,18 @@ exports.post = (req, res, next) => {
                 })
             }
             Answer.create({
-                    questionId: req.body.questionId,
-                    text: req.body.text, // {type: String, require: true},
-                    answeredBy: userData.username // {type: String, require: true},
+                    questionId,
+                    text,
+                    answeredBy: userData.username
                 },
                 (error, answer) => {
                     if (error) {
                         return res.status(500).json({
-                            error: err
+                            error
                         })
                     }
                     if (answer) {
-                        Question.updateOne({ _id: req.body.questionId }, {
+                        Question.updateOne({ _id: questionId }, {
                                 $inc: {
                                     answers: 1
                                 }
@@ -90,8 +88,8 @@ exports.post = (req, res, next) => {
         })
 }
 
-exports.get_one = (req, res, next) => {
-    const id = req.params.id
+exports.getOne = (req, res, next) => {
+    const { id } = req.params
     Answer.findById(id)
         .populate("questionId")
         .exec()
@@ -112,7 +110,8 @@ exports.get_one = (req, res, next) => {
 }
 
 exports.patch = (req, res, next) => {
-    if (!req.body.text) {
+    const { text } = req.body
+    if (!text) {
         return res.status(400).json({
             message: "Request payload is invalid. Please use attached format to update answer body",
             format: {
@@ -120,11 +119,11 @@ exports.patch = (req, res, next) => {
             }
         })
     }
-    const id = req.params.id
-    const userData = req.userData
+    const { id } = req.params
+    const { userData } = req
     Answer.updateOne({ _id: id, answeredBy: userData.username }, {
             $set: {
-                'text': req.body.text
+                'text': text
             }
         })
         .exec()
@@ -148,8 +147,8 @@ exports.patch = (req, res, next) => {
 
 
 exports.delete = (req, res, next) => {
-    const id = req.params.id
-    const userData = req.userData
+    const { id } = req.params
+    const { userData } = req
     Answer.findOneAndDelete({ _id: id, answeredBy: userData.username })
         .exec()
         .then(result => {

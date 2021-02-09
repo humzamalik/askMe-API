@@ -5,8 +5,8 @@ const answerSchema = mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Question'
     },
-    text: String, // {type: String, require: true},
-    answeredBy: String, // {type: String, require: true},
+    text: String,
+    answeredBy: { type: String, ref: 'User' },
     upVotes: { type: Number, default: 0 },
     downVotes: { type: Number, default: 0 },
     isVerified: { type: Boolean, default: false }
