@@ -1,5 +1,5 @@
-const Answer = require("../models/answer")
-const Question = require("../models/question")
+import Answer from "../models/answer"
+import Question from "../models/question"
 
 
 exports.getAll = (req, res, next) => {
@@ -14,6 +14,7 @@ exports.getAll = (req, res, next) => {
                     })
                 }
                 Answer.find({ questionId })
+                    .populate("answeredBy", "username profilePicture -_id")
                     .exec()
                     .then(answers => {
                         res.status(200).json({
@@ -59,7 +60,7 @@ exports.post = (req, res, next) => {
             Answer.create({
                     questionId,
                     text,
-                    answeredBy: userData.username
+                    answeredBy: userData._id
                 },
                 (error, answer) => {
                     if (error) {
@@ -91,7 +92,7 @@ exports.post = (req, res, next) => {
 exports.getOne = (req, res, next) => {
     const { id } = req.params
     Answer.findById(id)
-        .populate("questionId")
+        .populate("answeredBy", "username profilePicture -_id")
         .exec()
         .then(result => {
             if (result) {
@@ -121,9 +122,9 @@ exports.patch = (req, res, next) => {
     }
     const { id } = req.params
     const { userData } = req
-    Answer.updateOne({ _id: id, answeredBy: userData.username }, {
+    Answer.updateOne({ _id: id, answeredBy: userData._id }, {
             $set: {
-                'text': text
+                text
             }
         })
         .exec()
@@ -146,10 +147,10 @@ exports.patch = (req, res, next) => {
 }
 
 
-exports.delete = (req, res, next) => {
+exports.deleteOne = (req, res, next) => {
     const { id } = req.params
     const { userData } = req
-    Answer.findOneAndDelete({ _id: id, answeredBy: userData.username })
+    Answer.findOneAndDelete({ _id: id, answeredBy: userData._id })
         .exec()
         .then(result => {
             if (result) {

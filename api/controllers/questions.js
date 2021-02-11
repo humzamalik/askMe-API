@@ -1,11 +1,11 @@
-const User = require("../models/user")
-const Answer = require("../models/answer")
-const Question = require("../models/question")
-const delFile = require("../helpers/delete_media")
+import Answer from "../models/answer"
+import Question from "../models/question"
+import delFile from "../helpers/delete_media"
 
 
 exports.getAll = (req, res, next) => {
     Question.find()
+        .populate("askedBy", 'username profilePicture -_id')
         .exec()
         .then(questions => {
             res.status(200).json({
@@ -31,7 +31,7 @@ exports.post = (req, res, next) => {
     }
     Question.create({
             query,
-            askedBy: userData.username,
+            askedBy: userData._id,
             media: req.files ? req.files.map(file => {
                 return file.path
             }) : [],
@@ -53,6 +53,7 @@ exports.post = (req, res, next) => {
 exports.getOne = (req, res, next) => {
     const { id } = req.params
     Question.findById(id)
+        .populate("askedBy", 'username profilePicture -_id')
         .exec()
         .then(result => {
             if (result) {
@@ -80,7 +81,7 @@ exports.patch = (req, res, next) => {
     }
     const { userData } = req
     const { id } = req.params
-    Question.updateOne({ _id: id, askedBy: userData.username }, {
+    Question.updateOne({ _id: id, askedBy: userData._id }, {
             $set: {
                 query
             }
@@ -105,10 +106,10 @@ exports.patch = (req, res, next) => {
 }
 
 
-exports.delete = (req, res, next) => {
+exports.deleteOne = (req, res, next) => {
     const { userData } = req
     const { id } = req.params
-    Question.findOneAndDelete({ _id: id, askedBy: userData.username })
+    Question.findOneAndDelete({ _id: id, askedBy: userData._id })
         .exec()
         .then(question => {
             if (question) {

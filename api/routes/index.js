@@ -1,10 +1,9 @@
-const express = require("express")
+import express from "express"
+import userRoutes from "./user"
+import answerRoutes from "./answers"
+import questionRoutes from "./questions"
 
 const routes = express.Router()
-
-const userRoutes = require("./user")
-const answerRoutes = require("./answers")
-const questionRoutes = require("./questions")
 
 routes.use("/users", userRoutes)
 routes.use("/answers", answerRoutes)

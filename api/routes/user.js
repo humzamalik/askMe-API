@@ -1,16 +1,20 @@
-const express = require("express")
-const userController = require("../controllers/users")
+import express from "express"
+import { signup, login, getAll, delAll } from "../controllers/users"
 
 const router = express.Router()
 
-router.post("/signup", userController.signup)
-router.post("/login", userController.login)
+router.route('/signup')
+    .post(signup)
+
+router.route('/login')
+    .post(login)
 
 // +--------------------------------------------------------+
 // |         Following routes are just for dev              |
 // +--------------------------------------------------------+
-router.get("/", userController.getAll)
-router.delete("/", userController.delAll)
+router.route("/")
+    .get(getAll)
+    .delete(delAll)
 
 
 module.exports = router

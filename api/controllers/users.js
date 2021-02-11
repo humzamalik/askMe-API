@@ -1,6 +1,6 @@
-const bcrypt = require("bcrypt")
-const User = require("../models/user")
-const generateToken = require("../helpers/generate_token")
+import bcrypt from "bcrypt"
+import User from "../models/user"
+import generateToken from "../helpers/generate_token"
 
 exports.signup = (req, res, next) => {
     const { username, password } = req.body
@@ -68,7 +68,7 @@ exports.login = (req, res, next) => {
                     if (result) {
                         return res.status(200).json({
                             message: 'Auth Successful',
-                            token: generateToken(username)
+                            token: generateToken(user._id)
                         })
                     }
                     return res.status(401).json({

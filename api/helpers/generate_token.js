@@ -1,10 +1,11 @@
-const jwt = require("jsonwebtoken")
-const dotenv = require('dotenv');
+import dotenv from 'dotenv'
+import jwt from "jsonwebtoken"
+
 dotenv.config()
 
-const generateToken = (username) => {
+const generateToken = (_id) => {
     return jwt.sign({
-            username
+            _id
         },
         process.env.SECRET_KEY, {
             expiresIn: "30d"

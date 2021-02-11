@@ -1,14 +1,17 @@
-const express = require("express")
-const upload = require("../middlewares/upload")
-const checkAuth = require("../middlewares/check_auth")
-const questionController = require("../controllers/questions")
+import express from "express"
+import upload from "../middlewares/upload"
+import checkAuth from "../middlewares/check_auth"
+import { getAll, post, getOne, patch, deleteOne } from "../controllers/questions"
 
 const router = express.Router()
 
-router.get("/", questionController.getAll)
-router.get("/:id", questionController.getOne)
-router.post("/", checkAuth, upload, questionController.post)
-router.patch("/:id", checkAuth, questionController.patch)
-router.delete("/:id", checkAuth, questionController.delete)
+router.route("/")
+    .get(getAll)
+    .post(checkAuth, upload, post)
+
+router.route("/:id")
+    .get(getOne)
+    .patch(checkAuth, patch)
+    .delete(checkAuth, deleteOne)
 
 module.exports = router

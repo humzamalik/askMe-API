@@ -1,9 +1,9 @@
-const cors = require('cors')
-const morgan = require("morgan")
-const express = require("express")
-const mongoose = require("mongoose")
-const routes = require('./api/routes')
-const bodyParser = require('body-parser')
+import cors from 'cors'
+import morgan from "morgan"
+import express from "express"
+import mongoose from "mongoose"
+import routes from './api/routes'
+import bodyParser from 'body-parser'
 
 const app = express()
 
