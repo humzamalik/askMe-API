@@ -6,15 +6,17 @@ import routes from './api/routes'
 import bodyParser from 'body-parser'
 
 const app = express()
+const port = process.env.PORT || 3000
 
 mongoose.connect(
     "mongodb+srv://askme:askme@cluster0.seskr.mongodb.net/main?retryWrites=true&w=majority", {
+        useCreateIndex: true,
         useNewUrlParser: true,
         useUnifiedTopology: true
     }
 )
 
-// app.use(morgan("dev"))
+app.use(morgan("dev"))
 
 app.use("/media", express.static("media"))
 
@@ -25,17 +27,17 @@ app.use(cors())
 
 app.use("/api", routes)
 
-app.use((req, res, next) => {
+app.use((_req, _res, next) => {
     const err = new Error("Not Found")
     err.status = 404
     next(err)
 })
 
-app.use((err, req, res, next) => {
+app.use((err, _req, res, _next) => {
     res.status(err.status || 500).json({
         message: err.message,
         code: err.status
     })
 })
 
-module.exports = app
+app.listen(port)

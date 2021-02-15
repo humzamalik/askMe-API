@@ -2,7 +2,7 @@ import bcrypt from "bcrypt"
 import User from "../models/user"
 import generateToken from "../helpers/generate_token"
 
-exports.signup = (req, res, next) => {
+const signup = async(req, res, _next) => {
     const { username, password } = req.body
     if (!username || !password) {
         return res.status(400).json({
@@ -13,110 +13,84 @@ exports.signup = (req, res, next) => {
             }
         })
     }
-    User.findOne({ username })
-        .exec()
-        .then(result => {
-            if (result) {
-                return res.status(409).json({
-                    message: "Username taken. please try another one"
+    const result = await User.findOne({ username }).exec()
+    if (result) {
+        return res.status(409).json({
+            message: "Username taken. please try another one"
+        })
+    } else {
+        bcrypt.hash(password, 10, (err, hash) => {
+            if (err) {
+                return res.status(500).json({
+                    error: err
                 })
             } else {
-                bcrypt.hash(password, 10, (err, hash) => {
-                    if (err) {
-                        return res.status(500).json({
-                            error: err
+                User.create({
+                        username,
+                        password: hash,
+                    },
+                    (error, _user) => {
+                        if (error) {
+                            return res.status(500).json({
+                                error
+                            })
+                        }
+                        res.status(201).json({
+                            message: "User Created"
                         })
-                    } else {
-                        User.create({
-                                username,
-                                password: hash,
-                            },
-                            (error, user) => {
-                                if (error) {
-                                    return res.status(500).json({
-                                        error
-                                    })
-                                }
-                                res.status(201).json({
-                                    message: "User Created"
-                                })
-                            }
-                        )
-                    }
-                })
+                    })
             }
         })
-        .catch(err => {
-            res.status(500).json({
-                error: err
-            })
-        })
+    }
 }
 
-exports.login = (req, res, next) => {
+const login = async(req, res, _next) => {
     const { username, password } = req.body
-    User.findOne({ username })
-        .exec()
-        .then(user => {
-            if (user) {
-                bcrypt.compare(password, user.password, (err, result) => {
-                    if (err) {
-                        return res.status(401).json({
-                            message: 'Auth Failed'
-                        })
-                    }
-                    if (result) {
-                        return res.status(200).json({
-                            message: 'Auth Successful',
-                            token: generateToken(user._id)
-                        })
-                    }
-                    return res.status(401).json({
-                        message: 'Auth Failed'
-                    })
-                })
-            } else {
+    const user = await User.findOne({ username }).exec()
+    if (user) {
+        bcrypt.compare(password, user.password, (err, result) => {
+            if (err) {
                 return res.status(401).json({
                     message: 'Auth Failed'
                 })
             }
-        })
-        .catch(err => {
-            res.status(500).json({
-                error: err
+            if (result) {
+                return res.status(200).json({
+                    message: 'Auth Successful',
+                    token: generateToken(user._id)
+                })
+            }
+            return res.status(401).json({
+                message: 'Auth Failed'
             })
         })
+    } else {
+        return res.status(401).json({
+            message: 'Auth Failed'
+        })
+    }
 }
 
 
-exports.getAll = (req, res, next) => {
-    User.find()
-        .exec()
-        .then(results => {
-            res.status(200).json({
-                count: results.length,
-                users: results
-            })
-        })
-        .catch(err => {
-            res.status(500).json({
-                Error: err
-            })
-        })
+const getAll = async(_req, res, _next) => {
+    const results = await User.find().exec()
+    res.status(200).json({
+        count: results.length,
+        users: results
+    })
 }
 
-exports.delAll = (req, res, next) => {
-    User.deleteMany()
-        .exec()
-        .then(results => {
-            res.status(200).json({
-                count: results.length,
-                results
-            })
-        })
-        .catch(err => {
-            res.status(500).json({
-                Error: err
-            })
-        })
+const delAll = async(_req, res, _next) => {
+    const results = User.deleteMany().exec()
+    res.status(200).json({
+        count: results.length,
+        results
+    })
+}
+
+export {
+    login,
+    signup,
+    getAll,
+    delAll
 }

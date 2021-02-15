@@ -2,12 +2,12 @@ import multer from "multer"
 
 const storage = multer.diskStorage({
     destination: "./media/",
-    filename: function(req, file, cb) {
-        cb(null, Date.now().toString() + " " + file.originalname)
+    filename: (_req, file, cb) => {
+        cb(null, `${Date.now().toString()} ${file.originalname}`)
     }
 })
 
-const fileFilter = (req, file, cb) => {
+const fileFilter = (_req, file, cb) => {
     const allowed = ['image/png', 'image/jpeg', 'image/jpg']
     if (allowed.includes(file.mimetype)) {
         cb(null, true)
