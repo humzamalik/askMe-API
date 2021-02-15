@@ -9,4 +9,4 @@ routes.use("/users", userRoutes)
 routes.use("/answers", answerRoutes)
 routes.use("/questions", questionRoutes)
 
-module.exports = routes
+export default routes

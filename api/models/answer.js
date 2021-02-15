@@ -9,4 +9,4 @@ const answerSchema = mongoose.Schema({
     isVerified: { type: Boolean, default: false }
 }, { timestamps: true })
 
-module.exports = mongoose.model("Answer", answerSchema)
+export default mongoose.model("Answer", answerSchema)

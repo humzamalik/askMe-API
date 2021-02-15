@@ -24,4 +24,4 @@ const upload = multer({
     fileFilter
 }).array('pictures')
 
-module.exports = upload
+export default upload

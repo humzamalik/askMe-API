@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken"
 
-module.exports = (req, res, next) => {
+const checkAuth = (req, res, next) => {
     try {
         const { authorization } = req.headers;
         const decoded = jwt.verify(authorization, process.env.SECRET_KEY)
@@ -12,3 +12,5 @@ module.exports = (req, res, next) => {
         })
     }
 }
+
+export default checkAuth;

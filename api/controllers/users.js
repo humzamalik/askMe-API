@@ -29,7 +29,7 @@ const signup = async(req, res, next) => {
                         username,
                         password: hash,
                     },
-                    (error, _user) => {
+                    (error, user) => {
                         if (error) {
                             return res.status(500).json({
                                 error

@@ -17,4 +17,4 @@ router.route("/")
     .delete(delAll)
 
 
-module.exports = router
+export default router

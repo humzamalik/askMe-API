@@ -14,4 +14,4 @@ router.route("/:id")
     .delete(checkAuth, deleteOne)
 
 
-module.exports = router
+export default router

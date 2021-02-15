@@ -115,14 +115,13 @@ const patch = async(req, res, next) => {
 const deleteOne = async(req, res, next) => {
     const { id } = req.params
     const { userData } = req
-    const result = await Answer.findOneAndDelete({ _id: id, answeredBy: userData._id }).exec()
+    const result = await Answer.findOneAndDelete({ _id: id, answeredBy: userData._id })
     if (result) {
         Question.updateOne({ _id: result.questionId }, {
-                $inc: {
-                    answers: -1
-                }
-            })
-            .exec()
+            $inc: {
+                answers: -1
+            }
+        })
         res.status(200).json({
             message: "Answer deleted"
         })

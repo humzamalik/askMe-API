@@ -8,4 +8,4 @@ const questionSchema = mongoose.Schema({
     answers: { type: Number, default: 0 }
 }, { timestamps: true })
 
-module.exports = mongoose.model("Question", questionSchema)
+export default mongoose.model("Question", questionSchema)

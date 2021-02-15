@@ -9,4 +9,4 @@ const delFile = (path) => {
     })
 }
 
-module.exports = delFile
+export default delFile
