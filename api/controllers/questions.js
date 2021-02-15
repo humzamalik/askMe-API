@@ -3,17 +3,16 @@ import Question from "../models/question"
 import delFile from "../helpers/delete_media"
 
 
-const getAll = async(_req, res, _next) => {
+const getAll = async(req, res, next) => {
     const questions = await Question.find()
         .populate("askedBy", 'username profilePicture -_id')
-        .exec()
     res.status(200).json({
         count: questions.length,
         questions
     })
 }
 
-const post = (req, res, _next) => {
+const post = (req, res, next) => {
     const { userData } = req
     const { query } = req.body
     if (!query) {
@@ -42,11 +41,10 @@ const post = (req, res, _next) => {
 }
 
 
-const getOne = async(req, res, _next) => {
+const getOne = async(req, res, next) => {
     const { id } = req.params
     const result = await Question.findById(id)
         .populate("askedBy", 'username profilePicture -_id')
-        .exec()
     if (result) {
         res.status(200).json(result)
     } else {
@@ -57,7 +55,7 @@ const getOne = async(req, res, _next) => {
 }
 
 
-const patch = async(req, res, _next) => {
+const patch = async(req, res, next) => {
     const { query } = req.body
     if (!query) {
         return res.status(400).json({
@@ -67,11 +65,10 @@ const patch = async(req, res, _next) => {
     const { userData } = req
     const { id } = req.params
     const result = await Question.updateOne({ _id: id, askedBy: userData._id }, {
-            $set: {
-                query
-            }
-        })
-        .exec()
+        $set: {
+            query
+        }
+    })
     if (result.n > 0) {
         res.status(201).json({
             message: "Updated"
@@ -84,12 +81,11 @@ const patch = async(req, res, _next) => {
 }
 
 
-const deleteOne = async(req, res, _next) => {
+const deleteOne = async(req, res, next) => {
     const { userData } = req
     const { id } = req.params
     const question = await Question
         .findOneAndDelete({ _id: id, askedBy: userData._id })
-        .exec()
     if (question) {
         const paths = question.media
         paths.forEach(delFile);

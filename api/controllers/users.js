@@ -2,7 +2,7 @@ import bcrypt from "bcrypt"
 import User from "../models/user"
 import generateToken from "../helpers/generate_token"
 
-const signup = async(req, res, _next) => {
+const signup = async(req, res, next) => {
     const { username, password } = req.body
     if (!username || !password) {
         return res.status(400).json({
@@ -13,7 +13,7 @@ const signup = async(req, res, _next) => {
             }
         })
     }
-    const result = await User.findOne({ username }).exec()
+    const result = await User.findOne({ username })
     if (result) {
         return res.status(409).json({
             message: "Username taken. please try another one"
@@ -44,9 +44,9 @@ const signup = async(req, res, _next) => {
     }
 }
 
-const login = async(req, res, _next) => {
+const login = async(req, res, next) => {
     const { username, password } = req.body
-    const user = await User.findOne({ username }).exec()
+    const user = await User.findOne({ username })
     if (user) {
         bcrypt.compare(password, user.password, (err, result) => {
             if (err) {
@@ -72,16 +72,16 @@ const login = async(req, res, _next) => {
 }
 
 
-const getAll = async(_req, res, _next) => {
-    const results = await User.find().exec()
+const getAll = async(req, res, next) => {
+    const results = await User.find()
     res.status(200).json({
         count: results.length,
         users: results
     })
 }
 
-const delAll = async(_req, res, _next) => {
-    const results = User.deleteMany().exec()
+const delAll = async(req, res, next) => {
+    const results = User.deleteMany()
     res.status(200).json({
         count: results.length,
         results

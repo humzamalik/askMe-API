@@ -2,10 +2,10 @@ import Answer from "../models/answer"
 import Question from "../models/question"
 
 
-const getAll = async(req, res, _next) => {
+const getAll = async(req, res, next) => {
     const { questionId } = req.query
     if (questionId) {
-        const question = await Question.findById(questionId).exec()
+        const question = await Question.findById(questionId)
         if (!question) {
             return res.status(404).json({
                 "message": "No question found against passed Id"
@@ -13,7 +13,6 @@ const getAll = async(req, res, _next) => {
         }
         const answers = await Answer.find({ questionId })
             .populate("answeredBy", "username profilePicture -_id")
-            .exec()
         res.status(200).json({
             question,
             count: answers.length,
@@ -27,7 +26,7 @@ const getAll = async(req, res, _next) => {
     }
 }
 
-const post = async(req, res, _next) => {
+const post = async(req, res, next) => {
     const { questionId, text } = req.body
     if (!questionId || !text) {
         return res.status(400).json({
@@ -39,7 +38,7 @@ const post = async(req, res, _next) => {
         })
     }
     const { userData } = req
-    const question = await Question.findById(questionId).exec()
+    const question = await Question.findById(questionId)
     if (!question) {
         return res.status(404).json({
             "message": "No question found against passed Id"
@@ -71,11 +70,10 @@ const post = async(req, res, _next) => {
         })
 }
 
-const getOne = async(req, res, _next) => {
+const getOne = async(req, res, next) => {
     const { id } = req.params
     const answer = await Answer.findById(id)
         .populate("answeredBy", "username profilePicture -_id")
-        .exec()
     if (answer) {
         res.status(200).json(answer)
     } else {
@@ -85,7 +83,7 @@ const getOne = async(req, res, _next) => {
     }
 }
 
-const patch = async(req, res, _next) => {
+const patch = async(req, res, next) => {
     const { text } = req.body
     if (!text) {
         return res.status(400).json({
@@ -98,11 +96,10 @@ const patch = async(req, res, _next) => {
     const { id } = req.params
     const { userData } = req
     const result = await Answer.updateOne({ _id: id, answeredBy: userData._id }, {
-            $set: {
-                text
-            }
-        })
-        .exec()
+        $set: {
+            text
+        }
+    })
     if (result.n > 0) {
         res.status(201).json({
             message: "Updated"
@@ -115,7 +112,7 @@ const patch = async(req, res, _next) => {
 }
 
 
-const deleteOne = async(req, res, _next) => {
+const deleteOne = async(req, res, next) => {
     const { id } = req.params
     const { userData } = req
     const result = await Answer.findOneAndDelete({ _id: id, answeredBy: userData._id }).exec()
