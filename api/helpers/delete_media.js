@@ -1,12 +1,11 @@
 import fs from "fs"
 
 const delFile = (path) => {
-    fs.unlink(path, (err) => {
-        if (err) {
-            console.error(err)
-            return
-        }
-    })
+    try {
+        fs.unlinkSync(path)
+    } catch (error) {
+        console.log(error)
+    }
 }
 
 export default delFile

@@ -19,28 +19,18 @@ const signup = async(req, res, next) => {
             message: "Username taken. please try another one"
         })
     } else {
-        bcrypt.hash(password, 10, (err, hash) => {
-            if (err) {
-                return res.status(500).json({
-                    error: err
-                })
-            } else {
-                User.create({
-                        username,
-                        password: hash,
-                    },
-                    (error, user) => {
-                        if (error) {
-                            return res.status(500).json({
-                                error
-                            })
-                        }
-                        res.status(201).json({
-                            message: "User Created"
-                        })
-                    })
-            }
-        })
+        try {
+            const hash = await bcrypt.hash(password, 10)
+            await User.create({
+                username,
+                password: hash,
+            })
+            res.status(201).json({
+                message: "User Created"
+            })
+        } catch (error) {
+            res.status(500).json({ error })
+        }
     }
 }
 
@@ -48,24 +38,25 @@ const login = async(req, res, next) => {
     const { username, password } = req.body
     const user = await User.findOne({ username })
     if (user) {
-        bcrypt.compare(password, user.password, (err, result) => {
-            if (err) {
-                return res.status(401).json({
-                    message: 'Auth Failed'
-                })
-            }
-            if (result) {
+        try {
+            const isValidPass = await bcrypt.compare(password, user.password)
+            if (isValidPass) {
                 return res.status(200).json({
                     message: 'Auth Successful',
                     token: generateToken(user._id)
                 })
+            } else {
+                res.status(401).json({
+                    message: 'Auth Failed'
+                })
             }
-            return res.status(401).json({
+        } catch (_error) {
+            res.status(401).json({
                 message: 'Auth Failed'
             })
-        })
+        }
     } else {
-        return res.status(401).json({
+        res.status(401).json({
             message: 'Auth Failed'
         })
     }
@@ -81,7 +72,7 @@ const getAll = async(req, res, next) => {
 }
 
 const delAll = async(req, res, next) => {
-    const results = User.deleteMany()
+    const results = User.deleteMany().exec()
     res.status(200).json({
         count: results.length,
         results

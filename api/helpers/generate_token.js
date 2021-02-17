@@ -9,8 +9,7 @@ const generateToken = (_id) => {
         },
         process.env.SECRET_KEY, {
             expiresIn: "30d"
-        }
-    )
+        })
 }
 
 export default generateToken
