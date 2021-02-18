@@ -1,15 +1,18 @@
 import cors from 'cors'
+import dotenv from "dotenv"
 import morgan from "morgan"
 import express from "express"
 import mongoose from "mongoose"
 import routes from './api/routes'
 import bodyParser from 'body-parser'
 
+dotenv.config()
+
 const app = express()
 const port = process.env.PORT || 3000
 
 mongoose.connect(
-    "mongodb+srv://askme:askme@cluster0.seskr.mongodb.net/main?retryWrites=true&w=majority", {
+    process.env.DATABASE_URL, {
         useCreateIndex: true,
         useNewUrlParser: true,
         useUnifiedTopology: true

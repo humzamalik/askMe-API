@@ -1,7 +1,4 @@
-import dotenv from 'dotenv'
 import jwt from "jsonwebtoken"
-
-dotenv.config()
 
 const generateToken = (_id) => {
     return jwt.sign({
